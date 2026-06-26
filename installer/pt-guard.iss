@@ -77,14 +77,15 @@ Filename: "{cmd}"; Parameters: "/c taskkill /im {#ExeName} /f"; Flags: runhidden
 [Code]
 // WebView2 evergreen runtime registers its version ("pv") under this client GUID, per-machine
 // (incl. WOW6432Node) or per-user. If none is present we run the bootstrapper.
-function NeedsWebView2(): Boolean;
 const
-  Client = '{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}';
+  WV2Client = '{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}';
+
+function NeedsWebView2(): Boolean;
 var
   v: String;
 begin
   Result := not (
-    RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\' + Client, 'pv', v) or
-    RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\' + Client, 'pv', v) or
-    RegQueryStringValue(HKCU, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\' + Client, 'pv', v));
+    RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\' + WV2Client, 'pv', v) or
+    RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\' + WV2Client, 'pv', v) or
+    RegQueryStringValue(HKCU, 'SOFTWARE\Microsoft\EdgeUpdate\Clients\' + WV2Client, 'pv', v));
 end;
