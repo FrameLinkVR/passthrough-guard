@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Pure-logic library: NO WinForms, NO Windows TFM. Targets plain net8.0 so the
+       xUnit test project (and CI on macOS/Linux) can reference it and run the parser /
+       decider / debounce / adb-locator units without a Windows desktop runtime. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>PtGuard.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>
