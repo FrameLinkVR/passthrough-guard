@@ -33,6 +33,14 @@ ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 PrivilegesRequired=admin
 SetupIconFile=..\src\PtGuard\resources\framelink.ico
+; Re-install / upgrade over a RUNNING guard: the tray exe and its bundled adb (server + logcat + warm
+; shell) lock {app}\{#ExeName} and {app}\platform-tools\adb.exe. Use Restart Manager to force-close
+; them before replacing files, so the user never sees a "file in use — adb.exe" prompt. RM targets
+; only the processes holding OUR files; the user's other adb (e.g. Meta Quest Developer Hub) is left
+; alone. RestartApplications=no so RM doesn't resurrect a detached adb — the [Run] section relaunches
+; the guard cleanly, and the guard re-spawns its own adb.
+CloseApplications=force
+RestartApplications=no
 ; Authenticode (ADR-0005 / zi5.4): sign on the rig. Configure a "SignTool" named tool in the
 ; ISCC environment, then uncomment to sign both setup + uninstaller:
 ; SignTool=signtool
