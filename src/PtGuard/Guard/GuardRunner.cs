@@ -27,6 +27,7 @@ public sealed class GuardRunner : IDisposable
 
     private CancellationTokenSource? _superviseCts;
     private TaskCompletionSource? _reconnectSignal;
+    private TaskCompletionSource? _connectionDead;
     private LogcatStream? _logcat;
     private WarmShell? _warmShell;
 
@@ -78,8 +79,13 @@ public sealed class GuardRunner : IDisposable
     /// <summary>"Get me back to VR" — fire the reverse broadcast immediately, ignoring debounce.</summary>
     public void ManualBounce() => _warmShell?.FireReverse();
 
-    /// <summary>Cut any backoff wait short and retry the connection now.</summary>
-    public void ReconnectNow() => _reconnectSignal?.TrySetResult();
+    /// <summary>Reconnect now: cut any backoff wait short, and drop a live connection so the
+    /// supervise loop re-establishes it (re-pairs adb, reopens logcat + warm shell).</summary>
+    public void ReconnectNow()
+    {
+        _reconnectSignal?.TrySetResult();
+        _connectionDead?.TrySetResult();
+    }
 
     public void UpdateConfig(GuardConfig config)
     {
@@ -116,10 +122,17 @@ public sealed class GuardRunner : IDisposable
     private async Task ArmAndRunAsync(string serial, CancellationToken ct)
     {
         _serial = serial;
+
+        // Drop the existing logcat buffer so we never react to a STALE passthrough-on line from
+        // before we attached. Replaying one could fire the toggle while passthrough is actually off
+        // (turning it ON) — exactly the failure we exist to prevent.
+        await _adb.RunAsync(["-s", serial, "logcat", "-c"], TimeSpan.FromSeconds(5));
+
         _warmShell = new WarmShell(_adb, serial);
         _warmShell.Open();
 
         var dead = new TaskCompletionSource();
+        _connectionDead = dead;
         _logcat = new LogcatStream(_adb, serial);
         _logcat.LineReceived += OnLogcatLine;
         _logcat.Exited += () => dead.TrySetResult();
@@ -130,6 +143,7 @@ public sealed class GuardRunner : IDisposable
         using (ct.Register(() => dead.TrySetResult()))
             await dead.Task; // returns when logcat dies or we shut down
 
+        _connectionDead = null;
         _logcat.LineReceived -= OnLogcatLine;
         _logcat.Dispose();
         _logcat = null;
