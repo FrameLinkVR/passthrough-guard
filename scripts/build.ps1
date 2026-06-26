@@ -48,7 +48,8 @@ if (-not (Test-Path $iscc)) { throw "ISCC not found at $iscc (install Inno Setup
 Write-Host "== dotnet publish (self-contained single-file win-x64) =="
 $pub = Join-Path $root 'publish\win-x64'
 dotnet publish (Join-Path $root 'src\PtGuard\PtGuard.csproj') -c Release -r win-x64 --self-contained `
-  -p:PublishSingleFile=true "-p:Version=$ver" -o $pub --nologo
+  -p:PublishSingleFile=true "-p:Version=$ver" -o $pub --nologo 2>&1 |
+  Where-Object { $_ -match 'error|Build succeeded|FrameLinkPassthroughGuard.exe' } | ForEach-Object { "  $_" }
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed ($LASTEXITCODE)" }
 $exe = Join-Path $pub 'FrameLinkPassthroughGuard.exe'
 if (-not (Test-Path $exe)) { throw "expected exe not produced: $exe" }
