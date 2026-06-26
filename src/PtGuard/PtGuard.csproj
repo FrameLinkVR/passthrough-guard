@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>PtGuard</RootNamespace>
+    <AssemblyName>FrameLinkPassthroughGuard</AssemblyName>
+    <ApplicationIcon>resources\framelink.ico</ApplicationIcon>
+
+    <!-- Single self-contained exe: bundles the .NET runtime so the installer drops ONE file and
+         the user needs no separate .NET install ("make installing easy"). -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+
+    <!-- Lets the net8.0-windows / WindowsForms target RESTORE + BUILD on macOS/Linux (NuGet pulls
+         the Microsoft.WindowsDesktop.App ref pack). Compile-check the WinForms layer off-rig. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PtGuard.Core\PtGuard.Core.csproj" />
+  </ItemGroup>
+
+  <!-- WebView2 settings UI assets → copied next to the exe under web/ (the host loads them from
+       disk via a virtual host). RecursiveDir is relative to Settings\web\, so subfolders (fonts/)
+       are preserved. Remove the SDK's default None items for these paths first to avoid duplicates. -->
+  <ItemGroup>
+    <None Remove="Settings\web\**\*" />
+    <Content Include="Settings\web\**\*" Exclude="Settings\web\fonts\README.md">
+      <Link>web\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Brand icon shipped beside the exe (the tray loads + tints it at runtime). -->
+  <ItemGroup>
+    <None Remove="resources\framelink.ico" />
+    <Content Include="resources\framelink.ico">
+      <Link>resources\framelink.ico</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
