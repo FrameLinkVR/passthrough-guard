@@ -30,8 +30,7 @@ public sealed class SettingsWindow : Form
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = ColorTranslator.FromHtml("#0c0e12"); // no white flash before the page paints
         ShowInTaskbar = true;
-        if (File.Exists(_paths.IconPath))
-            Icon = new Icon(_paths.IconPath);
+        Icon = Tray.BrandIcon.Load(_paths.IconPath);
 
         Controls.Add(_web);
         _ = InitializeAsync();

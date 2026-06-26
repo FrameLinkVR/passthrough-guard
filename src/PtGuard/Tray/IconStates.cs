@@ -19,7 +19,7 @@ public sealed class IconStates(string iconPath) : IDisposable
     private static readonly Color Accent = ColorTranslator.FromHtml("#7c83ff");
     private static readonly Color Bg = ColorTranslator.FromHtml("#0c0e12");
 
-    private readonly Icon _base = new(iconPath);
+    private readonly Icon _base = BrandIcon.Load(iconPath);
     private readonly Dictionary<GuardState, Icon> _cache = new();
     private readonly List<nint> _handles = new();
 
