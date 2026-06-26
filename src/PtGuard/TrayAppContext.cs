@@ -172,7 +172,7 @@ public sealed class TrayAppContext : ApplicationContext
     private void Quit()
     {
         _runner?.Dispose();
-        _adb?.Dispose(); // tears down ONLY our private adb server
+        _adb?.Dispose(); // no-op: we share the system adb server and never kill it
         _tray.Dispose();
         _settings.Dispose();
         _icons.Dispose();

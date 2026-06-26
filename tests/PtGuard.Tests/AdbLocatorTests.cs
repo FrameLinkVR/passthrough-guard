@@ -28,10 +28,4 @@ public class AdbLocatorTests
         var path = AdbLocator.Resolve(Bundled, System, _ => false);
         Assert.Null(path);
     }
-
-    [Fact]
-    public void Server_port_is_private_not_the_default_5037()
-    {
-        Assert.NotEqual(5037, AdbLocator.PrivateServerPort);
-    }
 }

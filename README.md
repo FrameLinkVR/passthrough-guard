@@ -72,7 +72,7 @@ required to produce a shippable installer:
       / `SignedUninstaller=yes` in `pt-guard.iss` (ADR-0005 / zi5.4).
 - [ ] **Smoke test on the rig** — install → pair a Quest 3 over USB → in a sim, double-tap the
       headset → confirm passthrough snaps back within ~1/10 s → uninstall → confirm clean removal
-      (tray gone, HKCU Run value removed, private adb server torn down).
+      (tray gone, HKCU Run value removed; the shared adb server is left running for other tools).
 
 ## Why C#/.NET here (not the FrameLink app/ stack)
 `pt-guard` is a sanctioned satellite outside `app/`'s TypeScript / Zig / C++ language policy. A

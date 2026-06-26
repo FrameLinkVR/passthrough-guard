@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using PtGuard.Core.Adb;
 
 namespace PtGuard.Adb;
 
@@ -10,10 +9,14 @@ public readonly record struct AdbResult(int ExitCode, string StdOut, string StdE
 }
 
 /// <summary>
-/// Owns a PRIVATE adb server (on <see cref="AdbLocator.PrivateServerPort"/>, not the default 5037)
-/// so pt-guard never clashes with or hijacks the user's own adb — which FrameLink streaming or
-/// Android Studio may already be driving. Every process this starts inherits the private port via
-/// <c>ANDROID_ADB_SERVER_PORT</c>. Disposing kills only our server.
+/// Runs our bundled <c>adb</c> as a polite CLIENT of the standard shared adb server (default port
+/// 5037) — the model adb itself is built around: one server, many clients. We deliberately do NOT
+/// run our own server and never <c>kill-server</c>, so we coexist with whatever already owns the
+/// USB device (Meta Quest Developer Hub, scrcpy, Android Studio, FrameLink). This matters: a USB
+/// device can be claimed by only ONE adb server, so a separate private server would be permanently
+/// blind to a Quest another tool is holding. <see cref="StartServerAsync"/> just ensures a shared
+/// server exists (a no-op if one is already up) — using whichever adb the user already has, or
+/// ours as a fallback when they have none.
 /// </summary>
 public sealed class AdbServer(string adbPath) : IDisposable
 {
@@ -32,12 +35,15 @@ public sealed class AdbServer(string adbPath) : IDisposable
         };
         foreach (var a in args)
             psi.ArgumentList.Add(a);
-        psi.Environment[AdbLocator.ServerPortEnvVar] = AdbLocator.PrivateServerPort.ToString();
+        // No ANDROID_ADB_SERVER_PORT override: we use the default shared server (5037) so we see the
+        // same devices every other adb tool does, instead of a private server that can't claim a
+        // USB Quest another server already owns.
         return psi;
     }
 
-    /// <summary>Start our private server explicitly (so the first real command isn't slowed by the
-    /// cold server spin-up, and so we own the lifecycle).</summary>
+    /// <summary>Ensure a shared adb server is up so the first real command isn't slowed by a cold
+    /// spin-up. A no-op if another tool (MQDH, FrameLink, …) already started one. We start it but
+    /// never kill it.</summary>
     public Task StartServerAsync() => RunAsync(["start-server"], TimeSpan.FromSeconds(10));
 
     /// <summary>Run an adb command to completion, capturing output. Never throws on a non-zero
@@ -64,7 +70,7 @@ public sealed class AdbServer(string adbPath) : IDisposable
         return new AdbResult(proc.ExitCode, (await stdout).Trim(), (await stderr).Trim());
     }
 
-    /// <summary>Start a long-lived adb process (logcat / persistent shell) on the private server.
+    /// <summary>Start a long-lived adb process (logcat / persistent shell) on the shared server.
     /// Caller owns the returned <see cref="Process"/> and its streams.</summary>
     public Process Start(IReadOnlyList<string> args)
     {
@@ -75,17 +81,10 @@ public sealed class AdbServer(string adbPath) : IDisposable
 
     public void Dispose()
     {
-        // Best-effort: tear down only OUR server (private port), never the user's default one.
-        try
-        {
-            using var proc = new Process { StartInfo = BaseInfo(["kill-server"]) };
-            proc.Start();
-            proc.WaitForExit(3000);
-        }
-        catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
-        {
-            // adb already gone — nothing to tear down.
-        }
+        // Nothing to tear down: we are a client of the SHARED adb server, not its owner. We must
+        // NOT kill-server — Meta Quest Developer Hub, FrameLink, scrcpy and others rely on it. Our
+        // long-lived logcat/shell processes are owned and disposed by their callers
+        // (LogcatStream / WarmShell).
     }
 
     private static void TryKill(Process proc)

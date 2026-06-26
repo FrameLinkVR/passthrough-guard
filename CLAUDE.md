@@ -35,10 +35,12 @@ runtime so `dotnet test` is the cross-OS verification gate. **Keep parsing/filte
 `Core`.** The WinForms layer is the IO/lifecycle shell around it.
 
 ### Key invariants
-- **Bundled adb on a PRIVATE server port.** `AdbLocator` resolves the shipped
-  `resources/platform-tools/adb.exe` first; every adb process inherits `ANDROID_ADB_SERVER_PORT`
-  (= `AdbLocator.PrivateServerPort`, not 5037) so we never clash with or hijack the user's adb
-  (FrameLink streaming / Android Studio). We `kill-server` only our private port on exit.
+- **Bundled adb, shared server.** `AdbLocator` resolves the shipped `resources/platform-tools/adb.exe`
+  first (so the tool works with no adb installed), but drives it as a CLIENT of the **standard shared
+  adb server** (default 5037) — never a private one, never `kill-server`. A USB device can be claimed
+  by only ONE adb server, so a private server is permanently blind to a Quest that MQDH/scrcpy/etc.
+  already own. Sharing the server is what lets us see the device and coexist. `start-server` is a
+  no-op when another tool already started one.
 - **The filter is the safety.** Only `to value 1` AND a configured control point bounces. The default
   set is `DoubleTap` only — an intentional `QuickActionMenu` open is never fought, and our own reverse
   (which toggles via `QuickActionMenu`) can never re-trigger the guard.

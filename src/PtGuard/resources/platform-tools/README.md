@@ -1,9 +1,11 @@
 # Bundled adb / platform-tools (release/rig step)
 
-pt-guard drives a **bundled** `adb` on a **private server port** so it never clashes with — or
-hijacks — the user's own adb (FrameLink streaming, scrcpy, Android Studio may already own the
-default `5037`). `AdbLocator` resolves this folder first (`AppPaths.BundledAdb`) and only falls
-back to a PATH adb if it is absent.
+pt-guard ships a **bundled** `adb` so the tool works even when the user has none installed, and
+drives it as a **client of the standard shared adb server** (default `5037`) — the same server
+Meta Quest Developer Hub, scrcpy, Android Studio or FrameLink already use. We never run a private
+server and never `kill-server`: a USB device can be claimed by only one adb server, so a separate
+server would be permanently blind to a Quest another tool is holding. `AdbLocator` resolves this
+folder first (`AppPaths.BundledAdb`) and only falls back to a PATH adb if it is absent.
 
 These three files are **not committed** (they are an Apache-2.0 redistributable, not our source).
 Drop them here from Google's official Android platform-tools release before building the installer:
@@ -27,5 +29,5 @@ unzip -j platform-tools-latest-windows.zip \
 ```
 
 The installer (`installer/pt-guard.iss`) ships this folder as `platform-tools/` beside the exe.
-At runtime the app sets `ANDROID_ADB_SERVER_PORT` to a private value and runs `adb start-server`
-against it, then `adb kill-server` (private port only) on exit.
+At runtime the app runs `adb start-server` against the default shared server (a no-op if another
+tool already started one) and never `kill-server` on exit, so other adb tools keep working.
