@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FrameLink Passthrough Guard</title>
+  <link rel="icon" href="favicon.svg" />
+  <link rel="stylesheet" href="design-system.css" />
+  <style>
+    body { padding: 16px; }
+    .wordmark { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+    .wordmark img { width: 22px; height: 22px; }
+    .wordmark .name { font-weight: 700; font-size: 16px; letter-spacing: -0.2px; }
+    .wordmark .name b { color: var(--accent); }
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .statusline { display: flex; align-items: center; gap: 10px; }
+    .statusline .detail { font-size: 13.5px; color: var(--ink); font-weight: 600; }
+    .counter { font-family: var(--mono); font-weight: 600; color: var(--accent); }
+    .hidden { display: none !important; }
+    h2.ptitle { margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="wordmark">
+    <img src="favicon.svg" alt="" />
+    <span class="name">FrameLink <b>Guard</b></span>
+  </div>
+
+  <div class="stack">
+    <!-- Live status -->
+    <section class="panel">
+      <div class="panel-h"><span class="ptitle">Status</span>
+        <span class="pright"><span id="counter" class="counter"></span></span>
+      </div>
+      <div class="panel-b">
+        <div class="statusline">
+          <span id="sdot" class="sdot idle"></span>
+          <span id="detail" class="detail">Starting…</span>
+        </div>
+        <div class="row gap-s wrap">
+          <button id="pauseBtn" class="btn sm">Pause</button>
+          <button id="backBtn" class="btn sm accent">Get me back to VR</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Connection wizard (shown when no ready headset) -->
+    <section id="wizard" class="panel hidden">
+      <div class="panel-h"><span class="ptitle">Connect your headset</span></div>
+      <div class="panel-b">
+        <div class="step"><span class="sn">1</span><span class="sbody"><b>Enable Developer Mode</b>
+          <span class="meta">Meta Quest mobile app → your headset → Developer Mode → on.</span></span></div>
+        <div class="step"><span class="sn">2</span><span class="sbody"><b>Turn on USB debugging</b>
+          <span class="meta">In the headset: Settings → System → Developer → USB debugging.</span></span></div>
+        <div class="step"><span class="sn">3</span><span class="sbody"><b>Plug in over USB</b>
+          <span class="meta">Connect the headset to this PC, then tap <b>Allow</b> on the RSA prompt inside the headset.</span></span></div>
+        <div class="step"><span class="sn">4</span><span class="sbody"><b>(Optional) Go wireless</b>
+          <span class="meta">Once paired over USB, switch to Wi-Fi so the guard keeps working unplugged. Coexists with FrameLink streaming.</span></span></div>
+        <div class="row gap-s wrap">
+          <button id="refreshBtn" class="btn sm">Rescan</button>
+          <button id="wifiBtn" class="btn sm">Enable Wi-Fi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detected devices -->
+    <section id="devicesPanel" class="panel hidden">
+      <div class="panel-h"><span class="ptitle">Devices</span>
+        <span class="pright"><button id="refreshBtn2" class="btn sm ghost">Rescan</button></span>
+      </div>
+      <div class="panel-b" id="deviceList"></div>
+    </section>
+
+    <!-- Bounce set -->
+    <section class="panel">
+      <div class="panel-h"><span class="ptitle">Bounce on</span></div>
+      <div class="panel-b">
+        <p class="meta" style="margin:0">When passthrough turns on from one of these, the guard instantly snaps it back. An intentional menu open (QuickActionMenu) is always left alone.</p>
+        <div class="srow">
+          <div class="scopy"><span class="stitle">Accidental double-tap</span>
+            <span class="meta">The wheel/pedal-vibration trigger. Recommended.</span></div>
+          <input type="checkbox" id="bounceDoubleTap" class="sw" />
+        </div>
+        <div class="srow">
+          <div class="scopy"><span class="stitle">Action button</span>
+            <span class="meta">Also bounce passthrough from the headset action button.</span></div>
+          <input type="checkbox" id="bounceActionButton" class="sw" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Options -->
+    <section class="panel">
+      <div class="panel-h"><span class="ptitle">Options</span></div>
+      <div class="panel-b">
+        <div class="srow">
+          <div class="scopy"><span class="stitle">Start with Windows</span>
+            <span class="meta">Launch the guard automatically when you sign in.</span></div>
+          <input type="checkbox" id="autoStart" class="sw" />
+        </div>
+        <div class="srow">
+          <div class="scopy"><span class="stitle">Guard only while streaming</span>
+            <span class="meta">Arm only when a FrameLink / SteamVR session is active. Off = always armed.</span></div>
+          <input type="checkbox" id="guardOnlyWhileStreaming" class="sw" />
+        </div>
+      </div>
+    </section>
+
+    <p class="meta" style="text-align:center">FrameLink Passthrough Guard runs in the system tray.</p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
