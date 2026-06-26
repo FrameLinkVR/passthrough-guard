@@ -24,14 +24,17 @@ $redist = Join-Path $root 'installer\redist\MicrosoftEdgeWebview2Setup.exe'
 # --- bump the version -------------------------------------------------------------------------
 if (-not (Test-Path $versionFile)) { throw "VERSION file missing at $versionFile" }
 $cur = (Get-Content $versionFile -Raw).Trim()
-if ($cur -notmatch '^\d+\.\d+\.\d+$') { throw "VERSION is not MAJOR.MINOR.PATCH: '$cur'" }
-$p = $cur.Split('.') | ForEach-Object { [int] $_ }
+$m = [regex]::Match($cur, '^(\d+)\.(\d+)\.(\d+)$')
+if (-not $m.Success) { throw "VERSION is not MAJOR.MINOR.PATCH: '$cur'" }
+$maj = [int] $m.Groups[1].Value
+$min = [int] $m.Groups[2].Value
+$pat = [int] $m.Groups[3].Value
 switch ($Bump) {
-  'major' { $p = @($p[0] + 1, 0, 0) }
-  'minor' { $p = @($p[0], $p[1] + 1, 0) }
-  'patch' { $p = @($p[0], $p[1], $p[2] + 1) }
+  'major' { $maj++; $min = 0; $pat = 0 }
+  'minor' { $min++; $pat = 0 }
+  default { $pat++ }   # patch
 }
-$ver = '{0}.{1}.{2}' -f $p[0], $p[1], $p[2]
+$ver = "$maj.$min.$pat"
 Set-Content -Path $versionFile -Value $ver -NoNewline
 Write-Host "== version: $cur -> $ver ($Bump) =="
 
@@ -64,11 +67,16 @@ if (-not (Test-Path $setup)) { throw "expected installer not produced: $setup" }
 # --- drop on the Desktop ----------------------------------------------------------------------
 if (-not $NoDesktopCopy) {
   $desktop = [Environment]::GetFolderPath('Desktop')
-  $old = Join-Path $desktop 'FrameLinkPassthroughGuard-Setup.exe'  # unversioned -> stale, remove
-  if (Test-Path $old) { Remove-Item $old -Force; Write-Host "  removed stale $old" }
   $dst = Join-Path $desktop "FrameLinkPassthroughGuard-Setup-$ver.exe"
   Copy-Item $setup $dst -Force
   Write-Host ("  copied to Desktop: {0}" -f $dst)
+  # Best-effort: clear the old UNVERSIONED installer so the user can't run a stale one. If it is
+  # locked (open in Explorer / mid-download), just warn - the versioned copy above is what matters.
+  $old = Join-Path $desktop 'FrameLinkPassthroughGuard-Setup.exe'
+  if (Test-Path $old) {
+    try { Remove-Item $old -Force -ErrorAction Stop; Write-Host "  removed stale unversioned installer" }
+    catch { Write-Host "  (note) could not remove stale unversioned installer: $($_.Exception.Message)" }
+  }
 }
 
 Write-Host ""
