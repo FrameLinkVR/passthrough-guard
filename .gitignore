@@ -12,8 +12,9 @@ publish/
 dist/
 artifacts/
 
-# Inno Setup compiled installers
+# Inno Setup compiled installers + the vendored WebView2 bootstrapper (release-time)
 installer/Output/
+installer/redist/*.exe
 *.exe.bak
 
 # Vendored binaries fetched at release time (see resources/platform-tools/README.md)
