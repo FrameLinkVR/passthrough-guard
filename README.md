@@ -62,12 +62,12 @@ required to produce a shippable installer:
       `installer/redist/` (see its `README.md`).
 - [ ] **(Optional) Vendor fonts** — drop the @fontsource `.woff2` subsets into
       `src/PtGuard/Settings/web/fonts/` (see its `README.md`). Without them the UI uses system fonts.
-- [ ] **Publish the single exe**
-      `dotnet publish src/PtGuard/PtGuard.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish/win-x64`
-      → `publish/win-x64/FrameLinkPassthroughGuard.exe` (+ `web/`). Bundles the .NET runtime, so the
-      target PC needs no separate .NET install.
-- [ ] **Compile the installer** — `ISCC.exe installer/pt-guard.iss` →
-      `installer/Output/FrameLinkPassthroughGuard-Setup-<version>.exe`.
+- [ ] **Build (publish + installer) via the harness** — `powershell -ExecutionPolicy Bypass -File scripts/build.ps1`.
+      It **bumps the patch version** (single source of truth: the repo-root `VERSION` file), publishes
+      the self-contained single-file exe at that version, compiles the installer
+      (`installer/Output/FrameLinkPassthroughGuard-Setup-<version>.exe`), and drops the versioned
+      installer on the Desktop. Every run bumps, so no two builds share a version. Commit the `VERSION`
+      bump afterwards. (Manual fallback: `dotnet publish … -p:Version=<v>` then `ISCC /DAppVersion=<v> installer/pt-guard.iss`.)
 - [ ] **(Optional) Authenticode-sign** — configure a `signtool` named tool and uncomment `SignTool=`
       / `SignedUninstaller=yes` in `pt-guard.iss` (ADR-0005 / zi5.4).
 - [ ] **Smoke test on the rig** — install → pair a Quest 3 over USB → in a sim, double-tap the

@@ -10,7 +10,11 @@
 ; Then: ISCC.exe pt-guard.iss   →   Output\FrameLinkPassthroughGuard-Setup-<ver>.exe
 
 #define AppName "FrameLink Passthrough Guard"
-#define AppVersion "0.1.0"
+; Version is injected by scripts/build.ps1 via ISCC /DAppVersion=<x.y.z> (single source: the VERSION
+; file). Falls back to 0.0.0 for a bare `ISCC pt-guard.iss` so the script never compiles unversioned.
+#ifndef AppVersion
+  #define AppVersion "0.0.0"
+#endif
 #define AppPublisher "FrameLink"
 #define ExeName "FrameLinkPassthroughGuard.exe"
 
