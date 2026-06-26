@@ -1,0 +1,33 @@
+# .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+
+# Publish output
+publish/
+dist/
+artifacts/
+
+# Inno Setup compiled installers
+installer/Output/
+*.exe.bak
+
+# Vendored binaries fetched at release time (see resources/platform-tools/README.md)
+# adb.exe and friends are NOT committed — they are an Apache-2.0 redistributable
+# pulled on the rig. Keep the directory + its README, ignore the binaries.
+src/PtGuard/resources/platform-tools/adb.exe
+src/PtGuard/resources/platform-tools/AdbWinApi.dll
+src/PtGuard/resources/platform-tools/AdbWinUsbApi.dll
+
+# Vendored fonts (see Settings/web/fonts/README.md) — woff2 dropped in at release time
+src/PtGuard/Settings/web/fonts/*.woff2
+
+# macOS
+.DS_Store
+
+# WebView2 user data folders created at runtime
+**/PtGuard.WebView2/
