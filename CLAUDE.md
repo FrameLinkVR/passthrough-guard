@@ -59,7 +59,7 @@ This dev box is **macOS**. These compile/test here; the rest is the user's Windo
 
 ## Verification
 ```sh
-dotnet test tests/PtGuard.Tests/PtGuard.Tests.csproj   # 20 logic tests — runs on macOS
+dotnet test tests/PtGuard.Tests/PtGuard.Tests.csproj   # 19 logic tests — runs on macOS
 dotnet build FrameLinkPassthroughGuard.sln             # whole solution compiles cross-OS
 ```
 

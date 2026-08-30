@@ -11,7 +11,9 @@ passthrough blips for about a tenth of a second, then snaps you straight back in
 - **Only** reverses the accidental gesture (the double-tap). Opening passthrough on purpose from the
   Quick Actions menu is left alone.
 - Works over **USB or Wi-Fi**, and coexists with FrameLink / Virtual Desktop streaming.
-- Uses its **own bundled adb on a private port** — it never disturbs your existing adb setup.
+- **Brings its own adb**, so there is nothing to install — and it talks to the same shared adb
+  service every other tool uses, so it plays nicely with Meta Quest Developer Hub, scrcpy and
+  FrameLink instead of fighting them for the headset.
 
 ## How it works
 1. It reads the headset's log over `adb logcat` and matches the one line that means
@@ -23,7 +25,7 @@ passthrough blips for about a tenth of a second, then snaps you straight back in
 
 ## Install (end user)
 1. Run **`FrameLinkPassthroughGuard-Setup-<version>.exe`** and follow the prompts. It installs the
-   app, a private copy of `adb`, and (only if needed) the WebView2 runtime, and can start with
+   app, its own copy of `adb`, and (only if needed) the WebView2 runtime, and can start with
    Windows.
 2. Right-click the tray icon → **Open settings**, then follow the on-screen **Connect your headset**
    steps: enable Developer Mode + USB debugging, plug in over USB, tap **Allow** in the headset.
@@ -36,7 +38,7 @@ Right-click for Pause/Resume, the bounce set, Reconnect, settings, Start-with-Wi
 .NET 8 SDK required. The pure guard logic is unit-tested and runs on any OS:
 
 ```sh
-dotnet test  tests/PtGuard.Tests/PtGuard.Tests.csproj   # 20 logic tests (parser/filter/debounce/locator)
+dotnet test  tests/PtGuard.Tests/PtGuard.Tests.csproj   # 19 logic tests (parser/filter/debounce/locator)
 dotnet build FrameLinkPassthroughGuard.sln              # whole solution, incl. the WinForms app
 ```
 

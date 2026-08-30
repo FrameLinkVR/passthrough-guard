@@ -16,8 +16,9 @@ Whole thing takes about 5 minutes, most of it one-time headset setup.
 - The **Meta Horizon** app on your phone (the Meta Quest companion app) — for turning on Developer Mode.
 
 Nothing else to download. The installer bundles everything — the .NET runtime *and* its own copy of
-`adb`. That bundled `adb` runs on a **private port**, so it never clashes with FrameLink streaming,
-scrcpy, or Android Studio.
+`adb`. That bundled `adb` talks to the **standard adb service** every Android tool shares, so it
+still sees your headset when FrameLink streaming, scrcpy, or Android Studio got there first — and it
+leaves that service running for them when it exits.
 
 ---
 
