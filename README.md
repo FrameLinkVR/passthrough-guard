@@ -32,7 +32,7 @@ passthrough blips for about a tenth of a second, then snaps you straight back in
 3. Optional: click **Enable Wi-Fi** so the guard keeps working with the cable unplugged.
 
 The tray icon shows status at a glance: green = guarding, amber = paused, red = no headset.
-Right-click for Pause/Resume, the bounce set, Reconnect, settings, Start-with-Windows, and Quit.
+Right-click for Pause/Resume, Get me back to VR, the bounce set, Reconnect, settings, Start-with-Windows, and Quit.
 
 ## Develop / build / test (macOS or Windows)
 .NET 8 SDK required. The pure guard logic is unit-tested and runs on any OS:

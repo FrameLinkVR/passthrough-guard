@@ -24,7 +24,7 @@ leaves that service running for them when it exits.
 
 ## Step 1 — Run the installer
 
-1. Double-click **`FrameLinkPassthroughGuard-Setup.exe`**.
+1. Double-click **`FrameLinkPassthroughGuard-Setup-<version>.exe`**.
 2. Windows asks for permission (the blue "Do you want to allow…?" prompt) — click **Yes**.
 3. On the **Select Additional Tasks** screen, leave **"Start … when I sign in to Windows"** ticked
    (recommended — it keeps the Guard always on). A desktop shortcut is optional.
@@ -103,7 +103,7 @@ That's it. Leave it running and forget about it.
 | **Reconnect** | Re-pair after the headset sleeps or you swap the cable. |
 | **Open settings…** | The full window — status, devices, options. |
 | **Start with Windows** | Keep the Guard launching at sign-in. |
-| **Quit** | Stop the Guard (also shuts down its private `adb`). |
+| **Quit** | Stop the Guard (the shared `adb` service keeps running for other tools). |
 
 **Left-click** the icon opens the window directly.
 
@@ -135,4 +135,4 @@ That's it. Leave it running and forget about it.
 ## Uninstall
 
 **Windows Settings → Apps → FrameLink Passthrough Guard → Uninstall.** It stops the tray, removes the
-"start with Windows" entry, and shuts down its private `adb`. Clean removal, nothing left behind.
+"start with Windows" entry, and leaves the shared `adb` service running for other tools. Clean removal, nothing left behind.
